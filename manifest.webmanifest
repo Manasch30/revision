@@ -1,0 +1,19 @@
+{
+  "name": "Adaptive Spaced Revision",
+  "short_name": "SpacedRevision",
+  "description": "Adaptive spaced-retrieval revision planner based on forgetting-curve research",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
