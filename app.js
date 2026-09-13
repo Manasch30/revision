@@ -36,17 +36,17 @@ function generateDefaultTopics() {
       id: 'top_cell',
       subjectId: 'subj_bio',
       name: 'Cell Structure & Organelles',
-      completedAt: new Date(now - 35 * 60000).toISOString(), // learned 35 min ago
-      intervalMin: 20,
-      nextAt: new Date(now - 15 * 60000).toISOString(), // was due 15 min ago (Due Now!)
+      completedAt: new Date(now - 75 * 60000).toISOString(), // learned 75 min ago
+      intervalMin: 60, // 1 hr
+      nextAt: new Date(now - 15 * 60000).toISOString(), // due 15 min ago (Due Now!)
       reviews: []
     },
     {
       id: 'top_binary_tree',
       subjectId: 'subj_cs',
       name: 'Binary Search Trees & Balancing',
-      completedAt: new Date(now - 120 * 60000).toISOString(),
-      intervalMin: 20,
+      completedAt: new Date(now - 125 * 60000).toISOString(), // learned 125 min ago
+      intervalMin: 120, // 2 hr
       nextAt: new Date(now - 5 * 60000).toISOString(), // due 5 min ago (Due Now!)
       reviews: []
     },
@@ -193,11 +193,11 @@ const state = new AppState();
  * Exactly 3 recall choices: Forget, Hard, Good (no Easy button).
  */
 function calculateNextInterval(previousIntervalMin, result) {
-  let nextInterval = 20;
+  let nextInterval = 60;
 
   switch (result) {
     case 'forget':
-      nextInterval = Math.max(20, Math.round(previousIntervalMin * 0.25));
+      nextInterval = Math.max(60, Math.round(previousIntervalMin * 0.25));
       break;
     case 'hard':
       nextInterval = Math.max(60, Math.round(previousIntervalMin * 1.8));
@@ -206,7 +206,7 @@ function calculateNextInterval(previousIntervalMin, result) {
       nextInterval = Math.max(120, Math.round(previousIntervalMin * 3.0));
       break;
     default:
-      nextInterval = 20;
+      nextInterval = 60;
   }
 
   return nextInterval;
@@ -829,10 +829,9 @@ const UI = {
     this.intervalTiersContainer.innerHTML = '';
     this.totalTopicsCount.textContent = `${state.topics.length} total topics`;
 
-    // Interval brackets as specified in build spec
+    // Interval brackets with 1-2 hr initial tier
     const tiers = [
-      { name: '20 min', maxMinutes: 30, desc: 'Initial retrieval check' },
-      { name: '1 hr – 2 hr', minMinutes: 31, maxMinutes: 180, desc: 'Early memory consolidation' },
+      { name: '1 hr – 2 hr', minMinutes: 0, maxMinutes: 180, desc: 'Initial retrieval check' },
       { name: '6 hr', minMinutes: 181, maxMinutes: 480, desc: 'Same-day reinforcement' },
       { name: '1 day', minMinutes: 481, maxMinutes: 1800, desc: 'Overnight retention milestone' },
       { name: '2 days', minMinutes: 1801, maxMinutes: 3600, desc: 'Multi-day spacing' },
@@ -1095,7 +1094,7 @@ const UI = {
     timeline.innerHTML = '';
 
     if (reviews.length === 0) {
-      timeline.innerHTML = `<div class="tier-empty">No reviews logged yet. The first check will occur at 20 minutes from completion.</div>`;
+      timeline.innerHTML = `<div class="tier-empty">No reviews logged yet. The first check will occur at 1–2 hours from completion.</div>`;
     } else {
       // Reverse to show latest first
       [...reviews].reverse().forEach(rev => {
@@ -1245,8 +1244,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const completedDate = new Date(year, month - 1, day, hours, minutes, 0);
     const completedAtISO = completedDate.toISOString();
 
-    // Initial interval rule: First retrieval check at 20 minutes after learning
-    const initialIntervalMin = 20;
+    // Initial interval rule: First retrieval check at 1-2 hours (60 min) after learning
+    const initialIntervalMin = 60;
     const nextAtISO = computeNextAt(completedAtISO, initialIntervalMin);
 
     const newTopic = {
@@ -1269,7 +1268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     UI.renderCalendarView();
 
     const subj = state.getSubject(subjectId);
-    UI.showToast(`Logged "${name}" in ${subj.name} · First review in 20 min`);
+    UI.showToast(`Logged "${name}" in ${subj.name} · First review in 1 hr`);
   });
 
   // 7. Form: Add Subject

@@ -8,10 +8,10 @@ An evidence-backed, offline-first adaptive spaced-retrieval revision planner ins
 
 Rather than imposing a dogmatic 8-stage Ebbinghaus timetable, intervals recalibrate dynamically based on genuine active recall effort:
 
-- **Initial Retrieval Check**: Exactly **20 minutes** after learning completion.
+- **Initial Retrieval Check**: **1–2 hours** after learning completion.
 - **Strict 3 Recall Choices** (No "Easy" button — "Good" is the target recall standard):
   - **Forget** — Could not retrieve / major gaps:
-    $$\text{next interval} = \max(20\text{ min}, \text{previous} \times 0.25)$$
+    $$\text{next interval} = \max(60\text{ min}, \text{previous} \times 0.25)$$
   - **Hard** — Retrieved with significant struggle:
     $$\text{next interval} = \max(60\text{ min}, \text{previous} \times 1.8)$$
   - **Good** — Retrieved adequately:
@@ -23,7 +23,7 @@ Rather than imposing a dogmatic 8-stage Ebbinghaus timetable, intervals recalibr
 
 - **Today Screen**: Instant retrieval queue (`nextAt <= now`) with relative due countdowns, current intervals, one-tap grading, and "Later Today" preview.
 - **Spacious Calendar**: Full monthly view plotting revision milestones with click-to-inspect daily agendas.
-- **Schedule Visualization**: Distribution of topics grouped into expanding interval brackets (`20 min`, `1 hr - 2 hr`, `6 hr`, `1 day`, `2 days`, `3 days`, `7 days`, `14+ days`).
+- **Schedule Visualization**: Distribution of topics grouped into expanding interval brackets (`1 hr - 2 hr`, `6 hr`, `1 day`, `2 days`, `3 days`, `7 days`, `14+ days`).
 - **Subjects & Topics Manager**: Organize learning hierarchies with date/time completion logging and complete recall audit trails.
 - **Monochrome Dark Aesthetic**: Tactile, low-key, zero-nonsense dark design system.
 - **100% Offline & PWA**: Service Worker caching, Android installable web app manifest, and local storage persistence.
