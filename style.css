@@ -63,7 +63,9 @@
 /* ==========================================================================
    Clean Light Grey Theme (Optional Toggle, Default is Dark)
    ========================================================================== */
-[data-theme="light"] {
+:root[data-theme="light"],
+[data-theme="light"],
+body[data-theme="light"] {
   --bg-app: #eef1f5;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #e2e7ec;

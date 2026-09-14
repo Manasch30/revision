@@ -409,6 +409,34 @@ const UI = {
   subjectColorPalette: document.getElementById('subjectColorPalette'),
   inputSubjectColor: document.getElementById('inputSubjectColor'),
 
+  applyTheme(theme) {
+    const isLight = theme === 'light';
+    if (isLight) {
+      document.documentElement.setAttribute('data-theme', 'light');
+      if (document.body) document.body.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      if (document.body) document.body.removeAttribute('data-theme');
+    }
+
+    const sunIcon = document.getElementById('iconThemeSun');
+    const moonIcon = document.getElementById('iconThemeMoon');
+    if (sunIcon && moonIcon) {
+      sunIcon.style.display = isLight ? 'none' : 'block';
+      moonIcon.style.display = isLight ? 'block' : 'none';
+    }
+
+    const toggleThemeMode = document.getElementById('toggleThemeMode');
+    if (toggleThemeMode) {
+      toggleThemeMode.checked = isLight;
+    }
+
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', isLight ? '#eef1f5' : '#09090b');
+    }
+  },
+
   showToast(message) {
     this.toastEl.textContent = message;
     this.toastEl.classList.add('show');
@@ -1352,7 +1380,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnThemeToggle = document.getElementById('btnThemeToggle');
   if (btnThemeToggle) {
     btnThemeToggle.addEventListener('click', () => {
-      const nextTheme = (state.settings.theme === 'light') ? 'dark' : 'light';
+      const isCurrentlyLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const nextTheme = isCurrentlyLight ? 'dark' : 'light';
       state.settings.theme = nextTheme;
       state.saveSettings();
       UI.applyTheme(nextTheme);
