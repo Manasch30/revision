@@ -1,45 +1,27 @@
-const CACHE_NAME = 'spaced-revision-v2';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './style.css',
-  './app.js',
-  './manifest.webmanifest',
-  './icon.svg'
-];
+const CACHE_NAME = 'spaced-revision-v3';
 
-// Install: Cache core assets
+// Install: Immediately take over without waiting
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
-// Activate: Clean old caches immediately
+// Activate: Immediately purge all old caches and claim clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((name) => {
-          if (name !== CACHE_NAME) {
-            return caches.delete(name);
-          }
-        })
-      );
+      return Promise.all(cacheNames.map((name) => caches.delete(name)));
     }).then(() => self.clients.claim())
   );
 });
 
-// Fetch: Network-first for instantaneous updates, cache fallback for offline
+// Fetch: Network-first always, with graceful cache fallback if offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && networkResponse.status === 200 && event.request.url.startsWith('http')) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);

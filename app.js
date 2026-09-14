@@ -1517,8 +1517,8 @@ document.addEventListener('DOMContentLoaded', () => {
   UI.renderSubjectChips();
   UI.renderTodayView();
 
-  // Register Service Worker for offline PWA functionality
-  if ('serviceWorker' in navigator) {
+  // Register Service Worker for offline PWA functionality (only in production)
+  if ('serviceWorker' in navigator && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
         .then(reg => {
