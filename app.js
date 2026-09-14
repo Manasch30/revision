@@ -12,21 +12,25 @@ const STORAGE_KEY_SUBJECTS = 'spaced_revision_subjects_v1';
 const STORAGE_KEY_SETTINGS = 'spaced_revision_settings_v1';
 
 const SUBJECT_COLORS = [
-  '#18181b', // Deep Charcoal
-  '#52525b', // Slate
-  '#71717a', // Neutral Gray
-  '#3f3f46', // Zinc
-  '#27272a', // Graphite
-  '#a1a1aa', // Silver Gray
-  '#09090b', // True Black
-  '#475569'  // Muted Slate
+  '#10b981', // Emerald Green
+  '#6366f1', // Indigo / Purple-Blue
+  '#f59e0b', // Amber / Warm Gold
+  '#ef4444', // Crimson Red
+  '#06b6d4', // Vibrant Cyan
+  '#8b5cf6', // Violet
+  '#ec4899', // Vivid Pink
+  '#f97316', // Bright Orange
+  '#14b8a6', // Persian Teal
+  '#3b82f6', // Sky Blue
+  '#84cc16', // Lime
+  '#a855f7'  // Deep Purple
 ];
 
 // Seed data provided so the app is immediately demonstrative on first visit
 const DEFAULT_SUBJECTS = [
-  { id: 'subj_bio', name: 'Biology', color: '#18181b', createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
-  { id: 'subj_cs', name: 'Computer Science', color: '#52525b', createdAt: new Date(Date.now() - 86400000 * 5).toISOString() },
-  { id: 'subj_hist', name: 'History', color: '#71717a', createdAt: new Date(Date.now() - 86400000 * 10).toISOString() }
+  { id: 'subj_bio', name: 'Biology', color: '#10b981', createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
+  { id: 'subj_cs', name: 'Computer Science', color: '#6366f1', createdAt: new Date(Date.now() - 86400000 * 5).toISOString() },
+  { id: 'subj_hist', name: 'History', color: '#f59e0b', createdAt: new Date(Date.now() - 86400000 * 10).toISOString() }
 ];
 
 function generateDefaultTopics() {
@@ -118,7 +122,14 @@ class AppState {
       return DEFAULT_SUBJECTS;
     }
     try {
-      return JSON.parse(raw);
+      const list = JSON.parse(raw);
+      // Migrate demo subjects if they were previously saved with old monochrome colors
+      return list.map(s => {
+        if (s.id === 'subj_bio' && (s.color === '#18181b' || !s.color)) return { ...s, color: '#10b981' };
+        if (s.id === 'subj_cs' && (s.color === '#52525b' || !s.color)) return { ...s, color: '#6366f1' };
+        if (s.id === 'subj_hist' && (s.color === '#71717a' || !s.color)) return { ...s, color: '#f59e0b' };
+        return s;
+      });
     } catch {
       return DEFAULT_SUBJECTS;
     }
@@ -148,7 +159,7 @@ class AppState {
 
   loadSettings() {
     const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
-    const defaults = { audioHaptics: true };
+    const defaults = { audioHaptics: true, theme: 'dark' };
     if (!raw) return defaults;
     try {
       return { ...defaults, ...JSON.parse(raw) };
@@ -382,6 +393,7 @@ const UI = {
   agendaList: document.getElementById('agendaItemsList'),
   currentDateTimeText: document.getElementById('currentDateTimeText'),
   toastEl: document.getElementById('appToast'),
+  btnThemeToggle: document.getElementById('btnThemeToggle'),
 
   // Modals
   modalLogTopic: document.getElementById('modalLogTopic'),
@@ -954,7 +966,7 @@ const UI = {
         dayTopics.slice(0, 3).forEach(t => {
           const subj = state.getSubject(t.subjectId);
           eventsHtml += `
-            <span class="cal-pill" title="${escapeHtml(t.name)} (${subj.name})">
+            <span class="cal-pill" style="--event-color: ${subj.color}; border-left: 3px solid ${subj.color};" title="${escapeHtml(t.name)} (${subj.name})">
               ${escapeHtml(t.name)}
             </span>
           `;
@@ -1017,6 +1029,8 @@ const UI = {
       const subj = state.getSubject(topic.subjectId);
       const card = document.createElement('div');
       card.className = 'agenda-card';
+      card.style.setProperty('--subject-color', subj.color);
+      card.style.borderLeft = `3px solid ${subj.color}`;
       card.innerHTML = `
         <div style="display:flex; align-items:center; gap:0.75rem;">
           <span class="subject-dot" style="background:${subj.color}"></span>
@@ -1334,6 +1348,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 10. Settings & Backup
 
+  // Theme Mode Toggle (Header Button)
+  const btnThemeToggle = document.getElementById('btnThemeToggle');
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener('click', () => {
+      const nextTheme = (state.settings.theme === 'light') ? 'dark' : 'light';
+      state.settings.theme = nextTheme;
+      state.saveSettings();
+      UI.applyTheme(nextTheme);
+      UI.showToast(nextTheme === 'light' ? 'Light grey theme activated' : 'Dark theme activated');
+    });
+  }
+
+  // Theme Mode Toggle (Settings Modal Switch)
+  const toggleThemeMode = document.getElementById('toggleThemeMode');
+  if (toggleThemeMode) {
+    toggleThemeMode.checked = state.settings.theme === 'light';
+    toggleThemeMode.addEventListener('change', (e) => {
+      const nextTheme = e.target.checked ? 'light' : 'dark';
+      state.settings.theme = nextTheme;
+      state.saveSettings();
+      UI.applyTheme(nextTheme);
+      UI.showToast(nextTheme === 'light' ? 'Light grey theme activated' : 'Dark theme activated');
+    });
+  }
+
   const toggleAudio = document.getElementById('toggleAudioHaptic');
   toggleAudio.checked = state.settings.audioHaptics;
   toggleAudio.addEventListener('change', (e) => {
@@ -1443,6 +1482,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Initial renders
+  UI.applyTheme(state.settings.theme || 'dark');
   UI.initColorPicker();
   UI.populateSubjectDropdown();
   UI.renderSubjectChips();

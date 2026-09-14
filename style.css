@@ -60,6 +60,76 @@
   --cal-other-bg: #0d0d10;
 }
 
+/* ==========================================================================
+   Clean Light Grey Theme (Optional Toggle, Default is Dark)
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-app: #eef1f5;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #e2e7ec;
+  --bg-surface-hover: #d7dde4;
+  
+  --border-subtle: #d0d7de;
+  --border-medium: #b6c2cf;
+  --border-focus: #111827;
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+
+  --primary: #111827;
+  --primary-hover: #1f2937;
+  --primary-glow: rgba(0, 0, 0, 0.08);
+
+  --grade-forget: #dc2626;
+  --grade-forget-bg: #fef2f2;
+  --grade-forget-border: #fecaca;
+
+  --grade-hard: #d97706;
+  --grade-hard-bg: #fffbeb;
+  --grade-hard-border: #fde68a;
+
+  --grade-good: #16a34a;
+  --grade-good-bg: #f0fdf4;
+  --grade-good-border: #bbf7d0;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
+
+  --header-bg: rgba(238, 241, 245, 0.94);
+  --nav-bg: rgba(238, 241, 245, 0.96);
+  --input-bg: #ffffff;
+  --cal-today-bg: #e2e7ec;
+  --cal-other-bg: #e5e9ee;
+}
+
+[data-theme="light"] .brand-logo img {
+  filter: none;
+}
+
+[data-theme="light"] .primary-btn {
+  color: #ffffff;
+}
+
+[data-theme="light"] .btn-recall-good {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+[data-theme="light"] .btn-recall-good .recall-sub {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .chip-btn.active {
+  color: #ffffff;
+}
+
+[data-theme="light"] input:checked + .slider:before {
+  background-color: #ffffff;
+}
+
 /* Reset & Box Sizing */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -344,6 +414,7 @@ button {
 .review-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--subject-color, var(--border-subtle));
   border-radius: var(--radius-lg);
   padding: 1.15rem 1.25rem;
   position: relative;
@@ -380,7 +451,7 @@ button {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--text-secondary);
+  background: var(--subject-color, var(--text-secondary));
 }
 
 .due-indicator {
@@ -567,6 +638,7 @@ button {
 .upcoming-item {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--subject-color, var(--border-subtle));
   border-radius: var(--radius-md);
   padding: 0.9rem 1.15rem;
   display: flex;
@@ -999,7 +1071,7 @@ button {
   overflow: hidden;
 }
 
-/* Monochrome Event Pill in Calendar */
+/* Event Pill in Calendar with Subject Accent */
 .cal-pill {
   font-size: 0.74rem;
   font-weight: 600;
@@ -1011,6 +1083,7 @@ button {
   color: var(--text-primary);
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--event-color, var(--primary));
   display: block;
 }
 
@@ -1063,6 +1136,7 @@ button {
   padding: 0.9rem 1.15rem;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--subject-color, var(--border-subtle));
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -1338,7 +1412,8 @@ select:focus {
 
 .color-option.selected {
   border-color: var(--text-primary);
-  transform: scale(1.1);
+  box-shadow: 0 0 0 2px var(--bg-surface);
+  transform: scale(1.15);
 }
 
 /* Topic Detail Stats Grid */
