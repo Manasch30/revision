@@ -70,7 +70,6 @@ function generateDefaultTopics() {
           id: 'rev_demo_1',
           scheduledAt: new Date(nowMs - 150 * 60000).toISOString(),
           intervalMin: 150,
-          result: 'good',
           doneAt: new Date(nowMs - 148 * 60000).toISOString()
         }
       ]
@@ -87,14 +86,12 @@ function generateDefaultTopics() {
           id: 'rev_demo_2',
           scheduledAt: new Date(nowMs - 86400000 + 150 * 60000).toISOString(),
           intervalMin: 150,
-          result: 'good',
           doneAt: new Date(nowMs - 86400000 + 152 * 60000).toISOString()
         },
         {
           id: 'rev_demo_3',
           scheduledAt: new Date(nowMs - 86400000 + 360 * 60000).toISOString(),
           intervalMin: 360,
-          result: 'good',
           doneAt: new Date(nowMs - 86400000 + 365 * 60000).toISOString()
         }
       ]
@@ -111,21 +108,18 @@ function generateDefaultTopics() {
           id: 'rev_demo_4',
           scheduledAt: new Date(nowMs - 86400000 * 3 + 150 * 60000).toISOString(),
           intervalMin: 150,
-          result: 'good',
           doneAt: new Date(nowMs - 86400000 * 3 + 155 * 60000).toISOString()
         },
         {
           id: 'rev_demo_5',
           scheduledAt: new Date(nowMs - 86400000 * 3 + 360 * 60000).toISOString(),
           intervalMin: 360,
-          result: 'good',
           doneAt: new Date(nowMs - 86400000 * 3 + 365 * 60000).toISOString()
         },
         {
           id: 'rev_demo_6',
           scheduledAt: new Date(nowMs - 86400000 * 2).toISOString(),
           intervalMin: 1440,
-          result: 'good',
           doneAt: new Date(nowMs - 86400000 * 2 + 10 * 60000).toISOString()
         }
       ]
@@ -247,7 +241,7 @@ function getEveningTime(baseDate, daysOffset = 0) {
  * 6. Day 14: 2 weeks later at 7:00 PM
  * 7. Day 30+: 1 month later at 7:00 PM
  */
-function calculateNextReview(topic, result) {
+function calculateNextReview(topic) {
   const now = new Date();
   const currentInterval = topic.intervalMin || 150;
 
@@ -272,119 +266,56 @@ function calculateNextReview(topic, result) {
   let nextDate;
   let nextIntervalMin;
 
-  if (result === 'good') {
-    switch (currentStage) {
-      case 'within_3h': {
-        const today7PM = getEveningTime(now, 0);
-        // If at least 25 min left before 7:00 PM today, review tonight at 7 PM
-        if (today7PM.getTime() - now.getTime() > 25 * 60 * 1000) {
-          nextDate = today7PM;
-          nextIntervalMin = Math.max(60, Math.round((nextDate.getTime() - now.getTime()) / 60000));
-        } else {
-          // Already after 6:35 PM -> advance to Day 1 (Tomorrow at 7:00 PM)
-          nextDate = getEveningTime(now, 1);
-          nextIntervalMin = 1440;
-        }
-        break;
-      }
-      case 'end_of_day': {
-        // End of day complete -> advance to Day 1 (Tomorrow at 7:00 PM)
+  switch (currentStage) {
+    case 'within_3h': {
+      const today7PM = getEveningTime(now, 0);
+      // If at least 25 min left before 7:00 PM today, review tonight at 7 PM
+      if (today7PM.getTime() - now.getTime() > 25 * 60 * 1000) {
+        nextDate = today7PM;
+        nextIntervalMin = Math.max(60, Math.round((nextDate.getTime() - now.getTime()) / 60000));
+      } else {
+        // Already after 6:35 PM -> advance to Day 1 (Tomorrow at 7:00 PM)
         nextDate = getEveningTime(now, 1);
         nextIntervalMin = 1440;
-        break;
       }
-      case 'day_1': {
-        // Advance to Day 3 (3 days from now at 7:00 PM)
-        nextDate = getEveningTime(now, 3);
-        nextIntervalMin = 1440 * 3;
-        break;
-      }
-      case 'day_3': {
-        // Advance to Day 7 (1 week from now at 7:00 PM)
-        nextDate = getEveningTime(now, 7);
-        nextIntervalMin = 1440 * 7;
-        break;
-      }
-      case 'day_7': {
-        // Advance to Day 14 (2 weeks from now at 7:00 PM)
-        nextDate = getEveningTime(now, 14);
-        nextIntervalMin = 1440 * 14;
-        break;
-      }
-      case 'day_14': {
-        // Advance to Day 30 (1 month from now at 7:00 PM)
-        nextDate = getEveningTime(now, 30);
-        nextIntervalMin = 1440 * 30;
-        break;
-      }
-      case 'day_30':
-      default: {
-        // Advance to Day 60 (2 months from now at 7:00 PM)
-        nextDate = getEveningTime(now, 60);
-        nextIntervalMin = 1440 * 60;
-        break;
-      }
+      break;
     }
-  } else if (result === 'hard') {
-    // Struggled: repeat sooner before moving forward
-    switch (currentStage) {
-      case 'within_3h': {
-        const today7PM = getEveningTime(now, 0);
-        if (today7PM.getTime() - now.getTime() > 20 * 60 * 1000) {
-          nextDate = today7PM;
-          nextIntervalMin = Math.max(60, Math.round((nextDate.getTime() - now.getTime()) / 60000));
-        } else {
-          nextDate = getEveningTime(now, 1);
-          nextIntervalMin = 1440;
-        }
-        break;
-      }
-      case 'end_of_day': {
-        nextDate = getEveningTime(now, 1);
-        nextIntervalMin = 1440;
-        break;
-      }
-      case 'day_1': {
-        // Repeat tomorrow (Day 1 again)
-        nextDate = getEveningTime(now, 1);
-        nextIntervalMin = 1440;
-        break;
-      }
-      case 'day_3': {
-        // Drop back to Day 1 (tomorrow)
-        nextDate = getEveningTime(now, 1);
-        nextIntervalMin = 1440;
-        break;
-      }
-      case 'day_7': {
-        // Drop back to Day 3
-        nextDate = getEveningTime(now, 3);
-        nextIntervalMin = 1440 * 3;
-        break;
-      }
-      case 'day_14': {
-        // Drop back to Day 7
-        nextDate = getEveningTime(now, 7);
-        nextIntervalMin = 1440 * 7;
-        break;
-      }
-      case 'day_30':
-      default: {
-        // Drop back to Day 14
-        nextDate = getEveningTime(now, 14);
-        nextIntervalMin = 1440 * 14;
-        break;
-      }
-    }
-  } else {
-    // Forget: reset back to consolidate
-    const today7PM = getEveningTime(now, 0);
-    if (today7PM.getTime() - now.getTime() > 40 * 60 * 1000) {
-      nextDate = today7PM;
-      nextIntervalMin = Math.max(60, Math.round((nextDate.getTime() - now.getTime()) / 60000));
-    } else {
+    case 'end_of_day': {
+      // End of day complete -> advance to Day 1 (Tomorrow at 7:00 PM)
       nextDate = getEveningTime(now, 1);
       nextIntervalMin = 1440;
+      break;
+    }
+    case 'day_1': {
+      // Advance to Day 3 (3 days from now at 7:00 PM)
+      nextDate = getEveningTime(now, 3);
+      nextIntervalMin = 1440 * 3;
+      break;
+    }
+    case 'day_3': {
+      // Advance to Day 7 (1 week from now at 7:00 PM)
+      nextDate = getEveningTime(now, 7);
+      nextIntervalMin = 1440 * 7;
+      break;
+    }
+    case 'day_7': {
+      // Advance to Day 14 (2 weeks from now at 7:00 PM)
+      nextDate = getEveningTime(now, 14);
+      nextIntervalMin = 1440 * 14;
+      break;
+    }
+    case 'day_14': {
+      // Advance to Day 30 (1 month from now at 7:00 PM)
+      nextDate = getEveningTime(now, 30);
+      nextIntervalMin = 1440 * 30;
+      break;
+    }
+    case 'day_30':
+    default: {
+      // Advance to Day 60 (2 months from now at 7:00 PM)
+      nextDate = getEveningTime(now, 60);
+      nextIntervalMin = 1440 * 60;
+      break;
     }
   }
 
@@ -482,14 +413,12 @@ class FeedbackEffects {
     }
   }
 
-  playRecallSound(result) {
+  playCompletionSound() {
     if (!state.settings.audioHaptics) return;
 
-    // Haptics for Android / Mobile
+    // Subtle crisp haptics for Mobile
     if (navigator.vibrate) {
-      if (result === 'forget') navigator.vibrate([40, 60, 40]);
-      else if (result === 'hard') navigator.vibrate(50);
-      else if (result === 'good') navigator.vibrate([30, 40, 60]);
+      navigator.vibrate([30, 40, 60]);
     }
 
     try {
@@ -499,41 +428,21 @@ class FeedbackEffects {
         this.audioCtx.resume();
       }
 
+      const now = this.audioCtx.currentTime;
       const osc = this.audioCtx.createOscillator();
       const gain = this.audioCtx.createGain();
       osc.connect(gain);
       gain.connect(this.audioCtx.destination);
 
-      const now = this.audioCtx.currentTime;
-
-      if (result === 'forget') {
-        // Subtle downward pitch
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(220, now + 0.22);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-        osc.start(now);
-        osc.stop(now + 0.22);
-      } else if (result === 'hard') {
-        // Warm double tone
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(440, now);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-        osc.start(now);
-        osc.stop(now + 0.25);
-      } else if (result === 'good') {
-        // Bright upward harmonic arpeggio
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
-        gain.gain.setValueAtTime(0.14, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        osc.start(now);
-        osc.stop(now + 0.35);
-      }
+      // Harmonious completion chime
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
     } catch {
       // Audio autoplay policy fallback
     }
@@ -768,21 +677,13 @@ const UI = {
             <span>Due at ${formatLocalTime(topic.nextAt, false)}</span>
           </div>
 
-          <!-- Exactly Three Recall Choices: Forget · Hard · Good -->
-          <div class="recall-actions">
-            <button class="btn-recall btn-recall-forget" data-action="forget" data-id="${topic.id}" aria-label="Forget recall grade">
-              <span>Forget</span>
-              <span class="recall-sub">Reset / Gap</span>
-            </button>
-
-            <button class="btn-recall btn-recall-hard" data-action="hard" data-id="${topic.id}" aria-label="Hard recall grade">
-              <span>Hard</span>
-              <span class="recall-sub">Struggled</span>
-            </button>
-
-            <button class="btn-recall btn-recall-good" data-action="good" data-id="${topic.id}" aria-label="Good recall grade">
-              <span>Good</span>
-              <span class="recall-sub">Adequate</span>
+          <!-- Mark as Reviewed Action -->
+          <div class="review-card-actions">
+            <button class="btn-mark-reviewed" data-id="${topic.id}" aria-label="Mark as reviewed">
+              <svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Mark as Reviewed</span>
             </button>
           </div>
         `;
@@ -792,15 +693,15 @@ const UI = {
           UI.openTopicDetailModal(topic.id);
         });
 
-        // Recall button event listeners
-        card.querySelectorAll('.btn-recall').forEach(btn => {
-          btn.addEventListener('click', (e) => {
+        // Mark as Reviewed click handler
+        const markBtn = card.querySelector('.btn-mark-reviewed');
+        if (markBtn) {
+          markBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const action = btn.dataset.action;
-            const topicId = btn.dataset.id;
-            UI.handleReviewSubmit(topicId, action, card);
+            const topicId = markBtn.dataset.id;
+            UI.handleMarkReviewed(topicId, card);
           });
-        });
+        }
 
         this.todayQueueContainer.appendChild(card);
       });
@@ -840,28 +741,27 @@ const UI = {
   },
 
   /**
-   * Handle user clicking Forget, Hard, or Good
+   * Handle user clicking Mark as Reviewed
    */
-  handleReviewSubmit(topicId, result, cardEl) {
+  handleMarkReviewed(topicId, cardEl) {
     const topic = state.getTopic(topicId);
     if (!topic) return;
 
     // Trigger sound & haptics
-    feedback.playRecallSound(result);
+    feedback.playCompletionSound();
 
     const nowISO = new Date().toISOString();
     const scheduledAt = topic.nextAt;
     const previousInterval = topic.intervalMin || 150;
 
-    // 1. Calculate new review milestone using practical forgetting curve progression
-    const { nextAt, intervalMin } = calculateNextReview(topic, result);
+    // 1. Calculate new review milestone using forgetting curve progression
+    const { nextAt, intervalMin } = calculateNextReview(topic);
 
     // 2. Append to historical review record
     const reviewRecord = {
       id: 'rev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       scheduledAt: scheduledAt,
       intervalMin: previousInterval,
-      result: result,
       doneAt: nowISO
     };
 
@@ -891,9 +791,8 @@ const UI = {
       UI.renderCalendarView();
     }
 
-    const readableNew = formatInterval(newInterval);
-    const gradeLabel = result.charAt(0).toUpperCase() + result.slice(1);
-    UI.showToast(`Logged as ${gradeLabel} · Next review in ${readableNew}`);
+    const readableNew = formatInterval(intervalMin);
+    UI.showToast(`Marked as reviewed! Next review: ${readableNew}`);
   },
 
   // ========================================================================
@@ -1316,7 +1215,7 @@ const UI = {
         item.className = 'timeline-entry';
         item.innerHTML = `
           <div class="timeline-left">
-            <span class="result-chip ${rev.result}">${rev.result}</span>
+            <span class="result-chip reviewed">✓ Reviewed</span>
             <span class="timeline-date">${formatLocalTime(rev.doneAt, true)}</span>
           </div>
           <span class="timeline-interval">Interval: ${formatInterval(rev.intervalMin)}</span>

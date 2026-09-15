@@ -114,14 +114,16 @@ body[data-theme="light"] {
   color: #ffffff;
 }
 
-[data-theme="light"] .btn-recall-good {
-  background: var(--primary);
+[data-theme="light"] .btn-mark-reviewed {
+  background: #18181b;
   color: #ffffff;
-  border-color: var(--primary);
+  border-color: #18181b;
 }
 
-[data-theme="light"] .btn-recall-good .recall-sub {
-  color: #9ca3af;
+[data-theme="light"] .btn-mark-reviewed:hover {
+  background: #27272a;
+  border-color: #27272a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 [data-theme="light"] .chip-btn.active {
@@ -497,61 +499,50 @@ button {
   font-weight: 600;
 }
 
-/* Recall Choices: Forget, Hard, Good (Tactile, Clean, Low-Key) */
-.recall-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.75rem;
+/* Mark as Reviewed Action (Clean, Direct, Zero-Friction) */
+.review-card-actions {
+  display: flex;
+  margin-top: 0.85rem;
 }
 
-.btn-recall {
-  padding: 0.75rem 0.5rem;
+.btn-mark-reviewed {
+  width: 100%;
+  padding: 0.8rem 1.25rem;
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 600;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
-  min-height: 54px;
-  transition: all 0.15s ease;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
   cursor: pointer;
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   color: var(--text-primary);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.recall-sub {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-.btn-recall-forget:hover {
-  background: var(--grade-forget-bg);
-  border-color: var(--grade-forget-border);
-  color: var(--grade-forget);
-}
-
-.btn-recall-hard:hover {
-  background: var(--grade-hard-bg);
-  border-color: var(--grade-hard-border);
-  color: var(--grade-hard);
-}
-
-.btn-recall-good {
+.btn-mark-reviewed:hover {
   background: var(--primary);
   color: #09090b;
   border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
 }
 
-.btn-recall-good .recall-sub {
-  color: #52525b;
+.btn-mark-reviewed:active {
+  transform: translateY(0) scale(0.99);
 }
 
-.btn-recall-good:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
+.btn-mark-reviewed .check-icon {
+  stroke-width: 2.5;
+  transition: transform 0.15s ease;
+}
+
+.btn-mark-reviewed:hover .check-icon {
+  transform: scale(1.15);
 }
 
 /* Card removal / completion animation */
@@ -1502,25 +1493,17 @@ select:focus {
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  padding: 0.15rem 0.5rem;
+  padding: 0.18rem 0.55rem;
   border-radius: var(--radius-full);
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
-.result-chip.forget {
-  background: var(--grade-forget-bg);
-  color: var(--grade-forget);
-  border: 1px solid var(--grade-forget-border);
-}
-
-.result-chip.hard {
-  background: var(--grade-hard-bg);
-  color: var(--grade-hard);
-  border: 1px solid var(--grade-hard-border);
-}
-
-.result-chip.good {
-  background: var(--primary);
-  color: var(--bg-surface);
+.result-chip.reviewed {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 .timeline-date {
@@ -1746,12 +1729,10 @@ input:checked + .slider:before {
   .primary-btn {
     padding: 0.55rem 0.75rem;
   }
-  .recall-actions {
-    gap: 0.45rem;
-  }
-  .btn-recall {
-    min-height: 50px;
-    font-size: 0.82rem;
+  .btn-mark-reviewed {
+    min-height: 46px;
+    font-size: 0.88rem;
+    padding: 0.7rem 1rem;
   }
   .backup-actions {
     grid-template-columns: 1fr;
