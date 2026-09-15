@@ -34,40 +34,68 @@ const DEFAULT_SUBJECTS = [
 ];
 
 function generateDefaultTopics() {
-  const now = Date.now();
+  const now = new Date();
+  const nowMs = now.getTime();
+
+  const today7PM = new Date(now);
+  today7PM.setHours(19, 0, 0, 0);
+
+  const tomorrow7PM = new Date(now);
+  tomorrow7PM.setDate(tomorrow7PM.getDate() + 1);
+  tomorrow7PM.setHours(19, 0, 0, 0);
+
+  const day3_7PM = new Date(now);
+  day3_7PM.setDate(day3_7PM.getDate() + 3);
+  day3_7PM.setHours(19, 0, 0, 0);
+
   return [
     {
       id: 'top_cell',
       subjectId: 'subj_bio',
       name: 'Cell Structure & Organelles',
-      completedAt: new Date(now - 75 * 60000).toISOString(), // learned 75 min ago
-      intervalMin: 60, // 1 hr
-      nextAt: new Date(now - 15 * 60000).toISOString(), // due 15 min ago (Due Now!)
+      completedAt: new Date(nowMs - 165 * 60000).toISOString(), // learned ~2.75 hrs ago
+      intervalMin: 150, // Within 3 hrs
+      nextAt: new Date(nowMs - 15 * 60000).toISOString(), // due 15 min ago (Due Now!)
       reviews: []
     },
     {
       id: 'top_binary_tree',
       subjectId: 'subj_cs',
       name: 'Binary Search Trees & Balancing',
-      completedAt: new Date(now - 125 * 60000).toISOString(), // learned 125 min ago
-      intervalMin: 120, // 2 hr
-      nextAt: new Date(now - 5 * 60000).toISOString(), // due 5 min ago (Due Now!)
-      reviews: []
+      completedAt: new Date(nowMs - 300 * 60000).toISOString(), // learned earlier today
+      intervalMin: 360,
+      nextAt: today7PM.toISOString(), // Due this evening at 7:00 PM (End of day)
+      reviews: [
+        {
+          id: 'rev_demo_1',
+          scheduledAt: new Date(nowMs - 150 * 60000).toISOString(),
+          intervalMin: 150,
+          result: 'good',
+          doneAt: new Date(nowMs - 148 * 60000).toISOString()
+        }
+      ]
     },
     {
       id: 'top_revolution',
       subjectId: 'subj_hist',
       name: 'Causes of French Revolution',
-      completedAt: new Date(now - 86400000 * 2).toISOString(),
-      intervalMin: 120,
-      nextAt: new Date(now + 45 * 60000).toISOString(), // Due later today in 45m
+      completedAt: new Date(nowMs - 86400000).toISOString(),
+      intervalMin: 1440,
+      nextAt: tomorrow7PM.toISOString(), // Due tomorrow at 7:00 PM (Day 1)
       reviews: [
         {
-          id: 'rev_demo_1',
-          scheduledAt: new Date(now - 86400000 * 2 + 20 * 60000).toISOString(),
-          intervalMin: 20,
+          id: 'rev_demo_2',
+          scheduledAt: new Date(nowMs - 86400000 + 150 * 60000).toISOString(),
+          intervalMin: 150,
           result: 'good',
-          doneAt: new Date(now - 86400000 * 2 + 21 * 60000).toISOString()
+          doneAt: new Date(nowMs - 86400000 + 152 * 60000).toISOString()
+        },
+        {
+          id: 'rev_demo_3',
+          scheduledAt: new Date(nowMs - 86400000 + 360 * 60000).toISOString(),
+          intervalMin: 360,
+          result: 'good',
+          doneAt: new Date(nowMs - 86400000 + 365 * 60000).toISOString()
         }
       ]
     },
@@ -75,23 +103,30 @@ function generateDefaultTopics() {
       id: 'top_mitosis',
       subjectId: 'subj_bio',
       name: 'Mitosis vs Meiosis Stages',
-      completedAt: new Date(now - 86400000 * 4).toISOString(),
-      intervalMin: 2880, // 2 days
-      nextAt: new Date(now + 86400000).toISOString(), // Due tomorrow
+      completedAt: new Date(nowMs - 86400000 * 3).toISOString(),
+      intervalMin: 1440 * 3, // Day 3 milestone
+      nextAt: day3_7PM.toISOString(), // Due in 3 days at 7:00 PM
       reviews: [
         {
-          id: 'rev_demo_2',
-          scheduledAt: new Date(now - 86400000 * 4 + 20 * 60000).toISOString(),
-          intervalMin: 20,
+          id: 'rev_demo_4',
+          scheduledAt: new Date(nowMs - 86400000 * 3 + 150 * 60000).toISOString(),
+          intervalMin: 150,
           result: 'good',
-          doneAt: new Date(now - 86400000 * 4 + 22 * 60000).toISOString()
+          doneAt: new Date(nowMs - 86400000 * 3 + 155 * 60000).toISOString()
         },
         {
-          id: 'rev_demo_3',
-          scheduledAt: new Date(now - 86400000 * 4 + 140 * 60000).toISOString(),
-          intervalMin: 120,
-          result: 'hard',
-          doneAt: new Date(now - 86400000 * 4 + 150 * 60000).toISOString()
+          id: 'rev_demo_5',
+          scheduledAt: new Date(nowMs - 86400000 * 3 + 360 * 60000).toISOString(),
+          intervalMin: 360,
+          result: 'good',
+          doneAt: new Date(nowMs - 86400000 * 3 + 365 * 60000).toISOString()
+        },
+        {
+          id: 'rev_demo_6',
+          scheduledAt: new Date(nowMs - 86400000 * 2).toISOString(),
+          intervalMin: 1440,
+          result: 'good',
+          doneAt: new Date(nowMs - 86400000 * 2 + 10 * 60000).toISOString()
         }
       ]
     }
@@ -192,41 +227,175 @@ const state = new AppState();
 // ==========================================================================
 
 /**
- * Adaptive Spaced Retrieval Rules according to ADAPTIVE_REVISION_BUILD_SPEC.md:
- * 
- * Initial review: 20 minutes after learning completion.
- * 
- * Subsequent review results:
- * - Forget: next interval = max(20 min, previous interval * 0.25)
- * - Hard:   next interval = max(60 min, previous interval * 1.8)
- * - Good:   next interval = max(120 min, previous interval * 3.0)
- * 
- * Exactly 3 recall choices: Forget, Hard, Good (no Easy button).
+ * Helper to get a Date object set to 7:00 PM (19:00 local time) on a specific day
  */
-function calculateNextInterval(previousIntervalMin, result) {
-  let nextInterval = 60;
+function getEveningTime(baseDate, daysOffset = 0) {
+  const d = new Date(baseDate);
+  d.setDate(d.getDate() + daysOffset);
+  d.setHours(19, 0, 0, 0); // 7:00 PM local evening study time
+  return d;
+}
 
-  switch (result) {
-    case 'forget':
-      nextInterval = Math.max(60, Math.round(previousIntervalMin * 0.25));
-      break;
-    case 'hard':
-      nextInterval = Math.max(60, Math.round(previousIntervalMin * 1.8));
-      break;
-    case 'good':
-      nextInterval = Math.max(120, Math.round(previousIntervalMin * 3.0));
-      break;
-    default:
-      nextInterval = 60;
+/**
+ * Human-Friendly Spaced Forgetting Curve Engine:
+ * 
+ * 1. Initial Check: Within 3 hrs (~150 min after learning)
+ * 2. End of Day: Same-day evening consolidation at 7:00 PM
+ * 3. Day 1: Tomorrow at 7:00 PM
+ * 4. Day 3: 3 days later at 7:00 PM
+ * 5. Day 7: 1 week later at 7:00 PM
+ * 6. Day 14: 2 weeks later at 7:00 PM
+ * 7. Day 30+: 1 month later at 7:00 PM
+ */
+function calculateNextReview(topic, result) {
+  const now = new Date();
+  const currentInterval = topic.intervalMin || 150;
+
+  // Determine current milestone stage
+  let currentStage = 'within_3h';
+  if (currentInterval <= 180) {
+    currentStage = 'within_3h';
+  } else if (currentInterval <= 720) {
+    currentStage = 'end_of_day';
+  } else if (currentInterval <= 2160) {
+    currentStage = 'day_1';
+  } else if (currentInterval <= 5760) {
+    currentStage = 'day_3';
+  } else if (currentInterval <= 14400) {
+    currentStage = 'day_7';
+  } else if (currentInterval <= 28800) {
+    currentStage = 'day_14';
+  } else {
+    currentStage = 'day_30';
   }
 
-  return nextInterval;
+  let nextDate;
+  let nextIntervalMin;
+
+  if (result === 'good') {
+    switch (currentStage) {
+      case 'within_3h': {
+        const today7PM = getEveningTime(now, 0);
+        // If at least 25 min left before 7:00 PM today, review tonight at 7 PM
+        if (today7PM.getTime() - now.getTime() > 25 * 60 * 1000) {
+          nextDate = today7PM;
+          nextIntervalMin = Math.max(60, Math.round((nextDate.getTime() - now.getTime()) / 60000));
+        } else {
+          // Already after 6:35 PM -> advance to Day 1 (Tomorrow at 7:00 PM)
+          nextDate = getEveningTime(now, 1);
+          nextIntervalMin = 1440;
+        }
+        break;
+      }
+      case 'end_of_day': {
+        // End of day complete -> advance to Day 1 (Tomorrow at 7:00 PM)
+        nextDate = getEveningTime(now, 1);
+        nextIntervalMin = 1440;
+        break;
+      }
+      case 'day_1': {
+        // Advance to Day 3 (3 days from now at 7:00 PM)
+        nextDate = getEveningTime(now, 3);
+        nextIntervalMin = 1440 * 3;
+        break;
+      }
+      case 'day_3': {
+        // Advance to Day 7 (1 week from now at 7:00 PM)
+        nextDate = getEveningTime(now, 7);
+        nextIntervalMin = 1440 * 7;
+        break;
+      }
+      case 'day_7': {
+        // Advance to Day 14 (2 weeks from now at 7:00 PM)
+        nextDate = getEveningTime(now, 14);
+        nextIntervalMin = 1440 * 14;
+        break;
+      }
+      case 'day_14': {
+        // Advance to Day 30 (1 month from now at 7:00 PM)
+        nextDate = getEveningTime(now, 30);
+        nextIntervalMin = 1440 * 30;
+        break;
+      }
+      case 'day_30':
+      default: {
+        // Advance to Day 60 (2 months from now at 7:00 PM)
+        nextDate = getEveningTime(now, 60);
+        nextIntervalMin = 1440 * 60;
+        break;
+      }
+    }
+  } else if (result === 'hard') {
+    // Struggled: repeat sooner before moving forward
+    switch (currentStage) {
+      case 'within_3h': {
+        const today7PM = getEveningTime(now, 0);
+        if (today7PM.getTime() - now.getTime() > 20 * 60 * 1000) {
+          nextDate = today7PM;
+          nextIntervalMin = Math.max(60, Math.round((nextDate.getTime() - now.getTime()) / 60000));
+        } else {
+          nextDate = getEveningTime(now, 1);
+          nextIntervalMin = 1440;
+        }
+        break;
+      }
+      case 'end_of_day': {
+        nextDate = getEveningTime(now, 1);
+        nextIntervalMin = 1440;
+        break;
+      }
+      case 'day_1': {
+        // Repeat tomorrow (Day 1 again)
+        nextDate = getEveningTime(now, 1);
+        nextIntervalMin = 1440;
+        break;
+      }
+      case 'day_3': {
+        // Drop back to Day 1 (tomorrow)
+        nextDate = getEveningTime(now, 1);
+        nextIntervalMin = 1440;
+        break;
+      }
+      case 'day_7': {
+        // Drop back to Day 3
+        nextDate = getEveningTime(now, 3);
+        nextIntervalMin = 1440 * 3;
+        break;
+      }
+      case 'day_14': {
+        // Drop back to Day 7
+        nextDate = getEveningTime(now, 7);
+        nextIntervalMin = 1440 * 7;
+        break;
+      }
+      case 'day_30':
+      default: {
+        // Drop back to Day 14
+        nextDate = getEveningTime(now, 14);
+        nextIntervalMin = 1440 * 14;
+        break;
+      }
+    }
+  } else {
+    // Forget: reset back to consolidate
+    const today7PM = getEveningTime(now, 0);
+    if (today7PM.getTime() - now.getTime() > 40 * 60 * 1000) {
+      nextDate = today7PM;
+      nextIntervalMin = Math.max(60, Math.round((nextDate.getTime() - now.getTime()) / 60000));
+    } else {
+      nextDate = getEveningTime(now, 1);
+      nextIntervalMin = 1440;
+    }
+  }
+
+  return {
+    nextAt: nextDate.toISOString(),
+    intervalMin: nextIntervalMin
+  };
 }
 
 /**
  * Given a timestamp and interval in minutes, calculate the future ISO timestamp.
- * Uses exact millisecond arithmetic to seamlessly handle midnight, month changes,
- * leap years, and DST.
  */
 function computeNextAt(baseTimestampISO, intervalMinutes) {
   const baseTime = new Date(baseTimestampISO).getTime();
@@ -235,21 +404,24 @@ function computeNextAt(baseTimestampISO, intervalMinutes) {
 }
 
 /**
- * Human-friendly interval formatter:
- * e.g. "20 min", "2 hr", "1 day", "3.5 days"
+ * Human-friendly milestone interval formatter:
+ * e.g. "Within 3 hrs", "End of Day (7 PM)", "Day 1", "Day 3", "Day 7 (1 wk)", "Day 14 (2 wks)", "Day 30 (1 mo)"
  */
 function formatInterval(minutes) {
-  if (minutes < 60) {
-    return `${minutes} min`;
+  if (minutes <= 180) {
+    return 'Within 3 hrs';
   }
-  const hours = minutes / 60;
-  if (hours < 24) {
-    const cleanHours = Math.round(hours * 10) / 10;
-    return `${cleanHours} ${cleanHours === 1 ? 'hr' : 'hrs'}`;
+  if (minutes <= 720) {
+    return 'End of Day (7 PM)';
   }
-  const days = minutes / 1440;
-  const cleanDays = Math.round(days * 10) / 10;
-  return `${cleanDays} ${cleanDays === 1 ? 'day' : 'days'}`;
+  const days = Math.round(minutes / 1440);
+  if (days <= 1) return 'Day 1';
+  if (days < 7) return `Day ${days}`;
+  if (days === 7) return 'Day 7 (1 wk)';
+  if (days === 14) return 'Day 14 (2 wks)';
+  if (days >= 28 && days <= 35) return 'Day 30 (1 mo)';
+  if (days > 35) return `Day ${days} (${Math.round(days / 30)} mos)`;
+  return `Day ${days}`;
 }
 
 /**
@@ -679,10 +851,10 @@ const UI = {
 
     const nowISO = new Date().toISOString();
     const scheduledAt = topic.nextAt;
-    const previousInterval = topic.intervalMin || 20;
+    const previousInterval = topic.intervalMin || 150;
 
-    // 1. Calculate new interval using adaptive formula
-    const newInterval = calculateNextInterval(previousInterval, result);
+    // 1. Calculate new review milestone using practical forgetting curve progression
+    const { nextAt, intervalMin } = calculateNextReview(topic, result);
 
     // 2. Append to historical review record
     const reviewRecord = {
@@ -699,8 +871,8 @@ const UI = {
     topic.reviews.push(reviewRecord);
 
     // 3. Update topic state
-    topic.intervalMin = newInterval;
-    topic.nextAt = computeNextAt(nowISO, newInterval);
+    topic.intervalMin = intervalMin;
+    topic.nextAt = nextAt;
 
     // 4. Persist to storage
     state.saveTopics();
@@ -869,15 +1041,15 @@ const UI = {
     this.intervalTiersContainer.innerHTML = '';
     this.totalTopicsCount.textContent = `${state.topics.length} total topics`;
 
-    // Interval brackets with 1-2 hr initial tier
+    // Interval brackets: Within 3 hrs, End of Day (7 PM), Day 1, Day 3, Day 7, Day 14, Day 30+
     const tiers = [
-      { name: '1 hr – 2 hr', minMinutes: 0, maxMinutes: 180, desc: 'Initial retrieval check' },
-      { name: '6 hr', minMinutes: 181, maxMinutes: 480, desc: 'Same-day reinforcement' },
-      { name: '1 day', minMinutes: 481, maxMinutes: 1800, desc: 'Overnight retention milestone' },
-      { name: '2 days', minMinutes: 1801, maxMinutes: 3600, desc: 'Multi-day spacing' },
-      { name: '3 days', minMinutes: 3601, maxMinutes: 5760, desc: 'Expanding retrieval interval' },
-      { name: '7 days', minMinutes: 5761, maxMinutes: 14400, desc: 'Weekly retention check' },
-      { name: '14+ days', minMinutes: 14401, maxMinutes: Infinity, desc: 'Long-term memory stability' }
+      { name: 'Within 3 hrs', minMinutes: 0, maxMinutes: 200, desc: 'Initial retrieval check (~2–3 hrs after learning)' },
+      { name: 'End of Day (7 PM)', minMinutes: 201, maxMinutes: 720, desc: 'Same-day evening consolidation at 7:00 PM' },
+      { name: 'Day 1 (Tomorrow)', minMinutes: 721, maxMinutes: 2160, desc: '24-hour overnight retention check' },
+      { name: 'Day 3', minMinutes: 2161, maxMinutes: 5760, desc: '3-day consolidation milestone' },
+      { name: 'Day 7 (1 Week)', minMinutes: 5761, maxMinutes: 14400, desc: 'Weekly retention reinforcement' },
+      { name: 'Day 14 (2 Weeks)', minMinutes: 14401, maxMinutes: 28800, desc: 'Mid-term memory consolidation' },
+      { name: 'Day 30+ (1 Month)', minMinutes: 28801, maxMinutes: Infinity, desc: 'Long-term permanent recall' }
     ];
 
     tiers.forEach(tier => {
@@ -1136,7 +1308,7 @@ const UI = {
     timeline.innerHTML = '';
 
     if (reviews.length === 0) {
-      timeline.innerHTML = `<div class="tier-empty">No reviews logged yet. The first check will occur at 1–2 hours from completion.</div>`;
+      timeline.innerHTML = `<div class="tier-empty">No reviews logged yet. The first retrieval check occurs within 3 hours from completion.</div>`;
     } else {
       // Reverse to show latest first
       [...reviews].reverse().forEach(rev => {
@@ -1286,8 +1458,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const completedDate = new Date(year, month - 1, day, hours, minutes, 0);
     const completedAtISO = completedDate.toISOString();
 
-    // Initial interval rule: First retrieval check at 1-2 hours (60 min) after learning
-    const initialIntervalMin = 60;
+    // Initial interval rule: First retrieval check within 3 hours (~150 min)
+    const initialIntervalMin = 150;
     const nextAtISO = computeNextAt(completedAtISO, initialIntervalMin);
 
     const newTopic = {
@@ -1310,7 +1482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     UI.renderCalendarView();
 
     const subj = state.getSubject(subjectId);
-    UI.showToast(`Logged "${name}" in ${subj.name} · First review in 1 hr`);
+    UI.showToast(`Logged "${name}" in ${subj.name} · First check in ~2.5 hrs`);
   });
 
   // 7. Form: Add Subject

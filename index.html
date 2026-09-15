@@ -398,32 +398,32 @@
             This application is an <strong>adaptive spaced-retrieval planner inspired by forgetting-curve research</strong>.
           </p>
           <p>
-            Rather than forcing a rigid 8-stage Ebbinghaus timetable, intervals dynamically recalibrate based on your genuine retrieval effort:
+            Your revision schedule follows human-friendly retention milestones designed around practical study sessions:
           </p>
           <div class="science-rules">
-            <div class="rule-card forget">
+            <div class="rule-card good">
               <div class="rule-title">
-                <span class="dot red"></span>
-                <strong>Forget</strong>
+                <span class="dot green"></span>
+                <strong>Good (Advance Milestone)</strong>
               </div>
-              <p class="rule-desc">Could not retrieve / major knowledge gaps.</p>
-              <div class="rule-formula">next interval = max(60 min, previous × 0.25)</div>
+              <p class="rule-desc">Retrieved adequately. Advances through the forgetting curve ladder:</p>
+              <div class="rule-formula">Within 3h → End of Day (7 PM) → Day 1 → Day 3 → Day 7 → Day 14 → Day 30</div>
             </div>
             <div class="rule-card hard">
               <div class="rule-title">
                 <span class="dot orange"></span>
-                <strong>Hard</strong>
+                <strong>Hard (Consolidate Sooner)</strong>
               </div>
-              <p class="rule-desc">Retrieved with significant effort and struggle.</p>
-              <div class="rule-formula">next interval = max(60 min, previous × 1.8)</div>
+              <p class="rule-desc">Struggled to retrieve. Re-checks sooner before advancing.</p>
+              <div class="rule-formula">Repeats the current milestone or steps back one tier</div>
             </div>
-            <div class="rule-card good">
+            <div class="rule-card forget">
               <div class="rule-title">
-                <span class="dot green"></span>
-                <strong>Good</strong>
+                <span class="dot red"></span>
+                <strong>Forget (Re-learn)</strong>
               </div>
-              <p class="rule-desc">Retrieved reasonably well. <em>(Top grade; no "Easy" button)</em></p>
-              <div class="rule-formula">next interval = max(120 min, previous × 3.0)</div>
+              <p class="rule-desc">Could not retrieve / major knowledge gaps.</p>
+              <div class="rule-formula">Resets to End of Day (7 PM) or Day 1 to re-strengthen</div>
             </div>
           </div>
           <div class="quote-box">
